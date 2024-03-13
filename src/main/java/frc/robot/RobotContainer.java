@@ -36,18 +36,8 @@ public class RobotContainer
   XboxController driverXbox = new XboxController(0);
   XboxController shooterXbox = new XboxController(1);
 
-  Trigger aButton = new JoystickButton(driverXbox, XboxController.Button.kA.value);
-  Trigger bButton = new JoystickButton(driverXbox, XboxController.Button.kB.value);
-  Trigger xButton = new JoystickButton(driverXbox, XboxController.Button.kX.value);
-  Trigger yButton = new JoystickButton(driverXbox, XboxController.Button.kY.value);
-  Trigger leftBumper = new JoystickButton(driverXbox, XboxController.Button.kLeftBumper.value);
-  Trigger rightBumper = new JoystickButton(driverXbox, XboxController.Button.kRightBumper.value);
   Trigger backButton = new JoystickButton(driverXbox, XboxController.Button.kBack.value);
   Trigger startButton = new JoystickButton(driverXbox, XboxController.Button.kStart.value);
-  Trigger leftStickButton = new JoystickButton(driverXbox, XboxController.Button.kLeftStick.value);
-  Trigger rightStickButton = new JoystickButton(driverXbox, XboxController.Button.kRightStick.value);
-  Trigger leftTrigger = new Trigger(() -> driverXbox.getLeftTriggerAxis() > 0.5);
-  Trigger rightTrigger = new Trigger(() -> driverXbox.getRightTriggerAxis() > 0.5);
 
   Trigger resetHook = backButton.and(startButton);
 
