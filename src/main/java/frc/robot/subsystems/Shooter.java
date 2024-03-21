@@ -17,6 +17,7 @@ public class Shooter extends SubsystemBase {
     private final RelativeEncoder m_encoder;
 
     private final double maxRPM = 6000;
+    private final double RPMTolerance = 0.05 * maxRPM;
 
     public Shooter() {
         m_motor = new CANSparkMax(Crescendo.Shooter.SHOOTER_LEFT, MotorType.kBrushless);
@@ -27,6 +28,7 @@ public class Shooter extends SubsystemBase {
 
         m_motor2.follow(m_motor, true);
         m_motor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+        m_motor2.setIdleMode(CANSparkMax.IdleMode.kCoast);
         
         m_pidController = m_motor.getPIDController();
         m_encoder = m_motor.getEncoder();
@@ -36,7 +38,7 @@ public class Shooter extends SubsystemBase {
         m_pidController.setD(0);
         m_pidController.setFF(0.05);
         m_pidController.setIZone(0);
-        m_pidController.setOutputRange(-0.2, 0.7);
+        m_pidController.setOutputRange(-0.2, 1);
     }
 
     public void setMotorSpeed(double speed) {
@@ -47,6 +49,10 @@ public class Shooter extends SubsystemBase {
     public double getEncoderVelocity() {
         return m_encoder.getVelocity();
     }
+
+    public boolean isAtFullSpeed() {
+        return Math.abs(m_encoder.getVelocity() - maxRPM) < RPMTolerance;
+    }    
 
     @Override
     public void periodic() {

@@ -11,6 +11,7 @@ public class shooterCommand extends Command {
         this.shooter = shooter;
         this.setSpeed = setSpeed;
         addRequirements(shooter);
+        System.out.println("shooter" + setSpeed);
     }
 
     @Override
@@ -20,7 +21,7 @@ public class shooterCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        /* shooter.setMotorSpeed(0); */
+        shooter.setMotorSpeed(0);
     }  
 
     @Override

@@ -12,6 +12,7 @@ public class HookCommand extends Command {
         this.hook = hook;
         this.targetPosition = targetPosition;
         addRequirements(hook);
+        System.out.println("hook" + targetPosition);
     }
 
     @Override

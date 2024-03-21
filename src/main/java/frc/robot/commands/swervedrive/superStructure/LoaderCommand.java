@@ -11,6 +11,7 @@ public class LoaderCommand extends Command {
         this.loader = loader;
         this.setSpeed = setSpeed;
         addRequirements(loader);
+        System.out.println("loader" + setSpeed);
     }
 
     @Override

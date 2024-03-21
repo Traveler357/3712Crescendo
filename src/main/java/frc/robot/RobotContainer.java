@@ -16,6 +16,7 @@ import frc.robot.subsystems.Loader;
 import frc.robot.commands.swervedrive.superStructure.ArmCommand;
 import frc.robot.commands.swervedrive.superStructure.HookCommand;
 import frc.robot.commands.swervedrive.superStructure.LoaderCommand;
+import frc.robot.commands.swervedrive.superStructure.shootLoadCommand;
 import frc.robot.subsystems.Shooter;
 import frc.robot.commands.swervedrive.superStructure.shooterCommand;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -51,7 +52,7 @@ public class RobotContainer
     NamedCommands.registerCommand("ZeroGyro", new InstantCommand(drivebase::zeroGyro));
     NamedCommands.registerCommand("HookUp", new HookCommand(hook, -360));
     NamedCommands.registerCommand("HookDown", new HookCommand(hook, 0));
-    NamedCommands.registerCommand("ArmShoot", new ArmCommand(m_arm, -13.0));
+    NamedCommands.registerCommand("ArmShoot", new ArmCommand(m_arm, -12.0));
     NamedCommands.registerCommand("ArmLoad", new ArmCommand(m_arm, -7.5));
     NamedCommands.registerCommand("ArmHome", new ArmCommand(m_arm, 0.0));
     NamedCommands.registerCommand("ShootLaunch", new shooterCommand(shooter, 1));
@@ -86,18 +87,18 @@ public class RobotContainer
     new JoystickButton(driverXbox, XboxController.Button.kX.value).onTrue(new HookCommand(hook, 0));
     resetHook.onTrue(new HookCommand(hook, 360));
 
-    new JoystickButton(shooterXbox, XboxController.Button.kB.value).onTrue(new ArmCommand(m_arm, -13.0));
+    new JoystickButton(shooterXbox, XboxController.Button.kB.value).onTrue(new ArmCommand(m_arm, -12.0));
     new JoystickButton(shooterXbox, XboxController.Button.kY.value).onTrue(new ArmCommand(m_arm, -7.5));
     new JoystickButton(shooterXbox, XboxController.Button.kX.value).onTrue(new ArmCommand(m_arm, -0.0));
-    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).whileTrue(new shooterCommand(shooter, 1));
-    new JoystickButton(shooterXbox, XboxController.Button.kRightBumper.value).whileTrue(new shooterCommand(shooter, -1));
+    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).whileTrue(new shooterCommand(shooter, 0.8));
+    new JoystickButton(shooterXbox, XboxController.Button.kRightBumper.value).whileTrue(new shooterCommand(shooter, -0.8));
     new JoystickButton(shooterXbox, XboxController.Button.kA.value).whileTrue(new LoaderCommand(loader, -1));
     new JoystickButton(shooterXbox, XboxController.Button.kRightBumper.value).whileTrue(new LoaderCommand(loader, 1));
+    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).onTrue(new shootLoadCommand(shooter, loader, 0.8, -1));
   }
 
   public Command getAutonomousCommand()
   {
-    /* return drivebase.getAutonomousCommand("RotateFromSpeaker", false); */
     return autoChooser.getSelected();
   }
 
