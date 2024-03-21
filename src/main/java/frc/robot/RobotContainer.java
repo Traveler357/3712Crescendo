@@ -14,6 +14,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hook;
 import frc.robot.subsystems.Loader;
 import frc.robot.commands.swervedrive.superStructure.ArmCommand;
+import frc.robot.commands.swervedrive.superStructure.DetectAprilTagsCommand;
 import frc.robot.commands.swervedrive.superStructure.HookCommand;
 import frc.robot.commands.swervedrive.superStructure.LoaderCommand;
 import frc.robot.commands.swervedrive.superStructure.shootLoadCommand;
@@ -94,6 +95,7 @@ public class RobotContainer
     new JoystickButton(shooterXbox, XboxController.Button.kA.value).whileTrue(new LoaderCommand(loader, -1));
     new JoystickButton(shooterXbox, XboxController.Button.kRightBumper.value).whileTrue(new LoaderCommand(loader, 1));
     new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).onTrue(new shootLoadCommand(shooter, loader, 0.8, -1));
+    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).onTrue(new DetectAprilTagsCommand());
   }
 
   public Command getAutonomousCommand()
