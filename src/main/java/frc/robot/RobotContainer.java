@@ -13,6 +13,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hook;
 import frc.robot.subsystems.Loader;
+import frc.robot.commands.swervedrive.superStructure.AimAtTarget;
 import frc.robot.commands.swervedrive.superStructure.ArmCommand;
 import frc.robot.commands.swervedrive.superStructure.DetectAprilTagsCommand;
 import frc.robot.commands.swervedrive.superStructure.HookCommand;
@@ -90,12 +91,13 @@ public class RobotContainer
     new JoystickButton(shooterXbox, XboxController.Button.kB.value).onTrue(new ArmCommand(m_arm, -12.0));
     new JoystickButton(shooterXbox, XboxController.Button.kY.value).onTrue(new ArmCommand(m_arm, -7.5));
     new JoystickButton(shooterXbox, XboxController.Button.kX.value).onTrue(new ArmCommand(m_arm, -0.0));
-    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).whileTrue(new shooterCommand(shooter, 0.8));
+    /* new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).whileTrue(new shooterCommand(shooter, 0.8)); */
     new JoystickButton(shooterXbox, XboxController.Button.kRightBumper.value).whileTrue(new shooterCommand(shooter, -0.8));
     new JoystickButton(shooterXbox, XboxController.Button.kA.value).whileTrue(new LoaderCommand(loader, -1));
     new JoystickButton(shooterXbox, XboxController.Button.kRightBumper.value).whileTrue(new LoaderCommand(loader, 1));
-    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).onTrue(new shootLoadCommand(shooter, loader, 0.8, -1));
-    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).onTrue(new DetectAprilTagsCommand());
+    /* new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).onTrue(new shootLoadCommand(shooter, loader, 0.8, -1));
+    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).onTrue(new DetectAprilTagsCommand()); */
+    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).whileTrue(new AimAtTarget(drivebase, ()->MathUtil.applyDeadband(-shooterXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND), ()->MathUtil.applyDeadband(-shooterXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND)));
   }
 
   public Command getAutonomousCommand()

@@ -5,6 +5,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -12,10 +14,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
+
 import java.io.File;
 import java.util.function.DoubleSupplier;
 import swervelib.SwerveController;
@@ -37,7 +43,12 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Maximum speed of the robot in meters per second, used to limit acceleration.
    */
-  public        double      maximumSpeed = Units.feetToMeters(14.5);
+  public        double      maximumSpeed = Units.feetToMeters(18.0);
+
+  NetworkTableEntry v_limeLightX;
+  NetworkTableEntry v_limeLightValidTarget;
+  NetworkTableEntry v_limeLightTargetID;
+  public final Translation2d SPEAKER_POSITION = new Translation2d(0, 5.547868);
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -423,5 +434,53 @@ public class SwerveSubsystem extends SubsystemBase
   public void addFakeVisionReading()
   {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+
+
+
+  public SwerveDrive getSwerve(){
+    return swerveDrive;
+  }
+
+  public double getVisionAngle(){
+    return v_limeLightX.getDouble(0.0);
+  }
+
+  public Command aimAtTarget()
+  {
+    return run(() -> {
+      //if (result.hasTargets()){
+        drive(getTargetSpeeds(0,0,Rotation2d.fromDegrees(getVisionAngle())));
+      //}
+    });
+  }
+
+  public boolean isValidVisionTarget(){
+    return (v_limeLightValidTarget.getDouble(0.0) != 0); 
+  }
+  public void setVisionTargetID(int id){
+    v_limeLightTargetID.setInteger(id);
+  }
+
+  public Command driveAimAtTarget(DoubleSupplier translationX, DoubleSupplier translationY){
+    return run(() -> {
+      if(isValidVisionTarget()){
+        System.out.println("TRYING TO ROTATE WITH: " + -getVisionAngle()/75 * swerveDrive.getMaximumAngularVelocity());
+        swerveDrive.drive(new Translation2d(Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity(),
+                                          Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity()),
+                                          -getVisionAngle()/75 * swerveDrive.getMaximumAngularVelocity(),true,false);
+      }
+    });
+  }
+
+  public void updateVisionOdometry(){
+    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+    //System.out.println("TAG COUNT: " + limelightMeasurement.tagCount);
+    if(limelightMeasurement.tagCount >= 2)
+    {
+      //System.out.println("UPDATING ODOMETRY!");
+      SmartDashboard.putNumber("DISTANCE TO SPEAKER (INCHES)" , 39.37*SPEAKER_POSITION.getDistance(swerveDrive.getPose().getTranslation()));
+      swerveDrive.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(.7,.7,9999999));
+    }
   }
 }
