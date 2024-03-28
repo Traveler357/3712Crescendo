@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,9 +46,11 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public        double      maximumSpeed = Units.feetToMeters(18.0);
 
-  NetworkTableEntry v_limeLightX;
-  NetworkTableEntry v_limeLightValidTarget;
-  NetworkTableEntry v_limeLightTargetID;
+  NetworkTableEntry v_limeLightX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx");
+  NetworkTableEntry v_limeLightY = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty");
+  NetworkTableEntry v_limeLightValidTarget = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv");
+  NetworkTableEntry v_limeLightTargetID = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid");
+
   public final Translation2d SPEAKER_POSITION = new Translation2d(0, 5.547868);
 
   /**
@@ -446,12 +449,14 @@ public class SwerveSubsystem extends SubsystemBase
     return v_limeLightX.getDouble(0.0);
   }
 
+  public double getVisionTY(){
+    return v_limeLightY.getDouble(0.0);
+  }
+
   public Command aimAtTarget()
   {
     return run(() -> {
-      //if (result.hasTargets()){
         drive(getTargetSpeeds(0,0,Rotation2d.fromDegrees(getVisionAngle())));
-      //}
     });
   }
 
@@ -462,7 +467,7 @@ public class SwerveSubsystem extends SubsystemBase
     v_limeLightTargetID.setInteger(id);
   }
 
-  public Command driveAimAtTarget(DoubleSupplier translationX, DoubleSupplier translationY){
+  public Command AimAtTarget(DoubleSupplier translationX, DoubleSupplier translationY){
     return run(() -> {
       if(isValidVisionTarget()){
         System.out.println("TRYING TO ROTATE WITH: " + -getVisionAngle()/75 * swerveDrive.getMaximumAngularVelocity());
@@ -475,10 +480,8 @@ public class SwerveSubsystem extends SubsystemBase
 
   public void updateVisionOdometry(){
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-    //System.out.println("TAG COUNT: " + limelightMeasurement.tagCount);
     if(limelightMeasurement.tagCount >= 2)
     {
-      //System.out.println("UPDATING ODOMETRY!");
       SmartDashboard.putNumber("DISTANCE TO SPEAKER (INCHES)" , 39.37*SPEAKER_POSITION.getDistance(swerveDrive.getPose().getTranslation()));
       swerveDrive.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(.7,.7,9999999));
     }

@@ -97,7 +97,7 @@ public class RobotContainer
     new JoystickButton(shooterXbox, XboxController.Button.kRightBumper.value).whileTrue(new LoaderCommand(loader, 1));
     /* new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).onTrue(new shootLoadCommand(shooter, loader, 0.8, -1));
     new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).onTrue(new DetectAprilTagsCommand()); */
-    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).whileTrue(new AimAtTarget(drivebase, ()->MathUtil.applyDeadband(-shooterXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND), ()->MathUtil.applyDeadband(-shooterXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND)));
+    new JoystickButton(shooterXbox, XboxController.Button.kLeftBumper.value).whileTrue(new AimAtTarget(drivebase, m_arm, ()->MathUtil.applyDeadband(-shooterXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND), ()->MathUtil.applyDeadband(-shooterXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND)));
   }
 
   public Command getAutonomousCommand()

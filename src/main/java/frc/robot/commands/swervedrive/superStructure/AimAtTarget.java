@@ -9,45 +9,61 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.Arm;
 
 public class AimAtTarget extends Command {
   private final SwerveSubsystem SwerveSub;
+  private final Arm armSub;
   private DoubleSupplier translationX;
   private DoubleSupplier translationY;
   private double heading;
   private double lastGoodHeading;
-  /** Creates a new driveAimAtTarget. */
-  public AimAtTarget(SwerveSubsystem s_SwerveSubsystem, DoubleSupplier translationX, DoubleSupplier translationY) {
+
+
+  public AimAtTarget(SwerveSubsystem s_SwerveSubsystem, Arm a_ArmSubsystem, DoubleSupplier translationX, DoubleSupplier translationY) {
     this.SwerveSub = s_SwerveSubsystem;
+    this.armSub = a_ArmSubsystem;
     this.translationX = translationX;
     this.translationY = translationY;
     lastGoodHeading = 0;
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(s_SwerveSubsystem);
+    addRequirements(s_SwerveSubsystem, a_ArmSubsystem);
   }
 
-  // Called when the command is initially scheduled.
+  private double calculateDesiredArmPosition(double verticalAngle) {
+    final double maxVerticalAngle = 20.0;
+    final double minArmPosition = -14.0;
+    final double maxArmPosition = 0.0;
+    
+    // Normalize the vertical angle to a range of [0, 1] where 0 is max downward angle and 1 is max upward angle
+    double normalizedAngle = (verticalAngle + maxVerticalAngle) / (2 * maxVerticalAngle);
+    
+    // Map the normalized angle to the arm's position range
+    double armPosition = normalizedAngle * (minArmPosition - maxArmPosition) + maxArmPosition;
+    
+    // Clamp the arm position to within its physical limits
+    armPosition = Math.max(minArmPosition, Math.min(armPosition, maxArmPosition));
+    
+    return armPosition;
+}
+
+
   @Override
   public void initialize() {
     SwerveSub.setVisionTargetID(7);
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     if(SwerveSub.isValidVisionTarget()){
-      //heading = Math.pow(-SwerveSub.getVisionAngle()/30,3);
-      heading = -SwerveSub.getVisionAngle()/70;
-      /* RobotContainer.setRightRumbleDriver(0); */
+      heading = -SwerveSub.getVisionAngle()/90;
+      double verticleAngle = SwerveSub.getVisionTY();
+      double desiredArmPosition = calculateDesiredArmPosition(verticleAngle); // Implement this method based on your needs
+      armSub.setTargetPosition(desiredArmPosition);
     }else{
       System.out.println("Warning: Swerve Aim: Lost Target!");
-      /* RobotContainer.setRightRumbleDriver(1); */
       heading = 0;
     }
     lastGoodHeading = heading;
-
-    //System.out.println("Target is: " + heading);
-    //SwerveSub.driveCommand(translationX, translationY, heading);
 
 
     SwerveSub.getSwerve().drive(new Translation2d(Math.pow(translationX.getAsDouble(), 3) * SwerveSub.getSwerve().getMaximumVelocity(),
@@ -60,14 +76,11 @@ false);
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    /* RobotContainer.setRightRumbleDriver(0); */
-    //System.out.println("Warning: Swerve Aim: Target Lost!");
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    //return !SwerveSub.isValidVisionTarget();
     return false;
   }
 }
